@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e107Plugin name="JM Google Ad" lan="LAN_JMGOOGLEAD_ADMIN_01" version="2.0.0" date="2026-07-13" compatibility="2.4" installRequired="true" >
+	<author name="Jimako" url="https://www.e107sk.com/" />
+	<summary lan="">Manage Google AdSense ad units and the AdSense loader script.</summary>
+	<description lan="">Insert Google AdSense ad units via a shortcode and load the AdSense script site-wide. Generic, no site-specific logic.</description>
+	<keywords>
+		<word>advertising</word>
+		<word>googleads</word>
+		<word>adsense</word>
+	</keywords>
+	<category>content</category>
+	<copyright>e107sk</copyright>
+	<adminLinks>
+		<link url="admin/admin_config.php" description="" icon="images/googlead_64.png" iconSmall="images/googlead_32.png" icon128="images/googlead_128.png" primary="true" >LAN_CONFIGURE</link>
+		<link url="admin/admin_adunits.php" description="" icon="images/googlead_64.png" iconSmall="images/googlead_32.png" icon128="images/googlead_128.png" >LAN_JMGOOGLEAD_ADMIN_ADUNITS</link>
+	</adminLinks>
+	<pluginPrefs>
+		<pref name='googleads_script'></pref>
+		<pref name='googleads_global'>0</pref>
+		<pref name='googleads_position'>head</pref>
+		<pref name='googleads_blockpages'>login.php</pref>
+	</pluginPrefs>
+</e107Plugin>
