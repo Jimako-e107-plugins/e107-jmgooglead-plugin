@@ -27,14 +27,7 @@ if(!USER_AREA)
 
 $jmgooglead = e107::getSingleton('jmgooglead', e_PLUGIN . 'jmgooglead/includes/jmgooglead.php');
 
-if($jmgooglead->isPageBlocked())
-{
-	return;
-}
-
-$position = e107::getPlugPref('jmgooglead', 'googleads_position', 'head');
-
-if($position === 'body_end')
-{
-	echo $jmgooglead->renderLoaderScript();
-}
+// See e_meta.php: renderLoaderForPosition() makes the whole decision (block
+// list, position preference, enabled/non-empty) and returns '' when nothing
+// must be emitted, so this echo is safe unconditionally.
+echo $jmgooglead->renderLoaderForPosition('body_end');

@@ -36,7 +36,7 @@ return [
 	'LAN_JMGOOGLEAD_ADMIN_POSITION_BODY'   => "End of &lt;body&gt;",
 	'LAN_JMGOOGLEAD_ADMIN_POSITION_HELP'   => "Where to output the loader script. \"head\" is what Google expects for AdSense verification. \"body_end\" may score better in PageSpeed but can break verification.",
 	'LAN_JMGOOGLEAD_ADMIN_BLOCKPAGES'      => "Exclude pages",
-	'LAN_JMGOOGLEAD_ADMIN_BLOCKPAGES_HELP' => "Pages on which ads and the loader are suppressed. One URL fragment per line.",
+	'LAN_JMGOOGLEAD_ADMIN_BLOCKPAGES_HELP' => "Pages on which ads and the loader are suppressed. One URL fragment per line. Warning: each entry is matched against the full page URL including the domain, so a fragment of your own domain name would match every page and disable ads site-wide - enter a path fragment (e.g. /donate), not the domain.",
 
 	// Help block (e_help.php addon - support/documentation links)
 	'LAN_JMGOOGLEAD_ADMIN_HELP_01' => "Help",

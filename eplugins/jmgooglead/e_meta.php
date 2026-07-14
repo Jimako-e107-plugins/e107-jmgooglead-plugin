@@ -30,14 +30,8 @@ if(!USER_AREA)
 
 $jmgooglead = e107::getSingleton('jmgooglead', e_PLUGIN . 'jmgooglead/includes/jmgooglead.php');
 
-if($jmgooglead->isPageBlocked())
-{
-	return;
-}
-
-$position = e107::getPlugPref('jmgooglead', 'googleads_position', 'head');
-
-if($position === 'head')
-{
-	echo $jmgooglead->renderLoaderScript();
-}
+// renderLoaderForPosition() applies the block list, the googleads_position
+// preference and the enabled/non-empty check, and returns '' when nothing must
+// be emitted here - so this echo is safe unconditionally and the decision lives
+// in exactly one place (shared with e_footer.php and the UnitedNuke glue).
+echo $jmgooglead->renderLoaderForPosition('head');

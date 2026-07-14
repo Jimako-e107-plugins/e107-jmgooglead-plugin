@@ -57,14 +57,53 @@ if(!class_exists('jmgooglead'))
 			}
 
 			// Normalise: the admin may paste the snippet with or without the
-			// surrounding <script> tags. Emit exactly one <script> element and
-			// never nest them. Case-insensitive check for a leading <script tag.
-			if(stripos($code, '<script') !== 0)
+			// surrounding <script> tags. Only wrap it when there is no <script>
+			// tag anywhere in the snippet.
+			//
+			// This MUST be "contains" (=== false), not "starts with" (!== 0). A
+			// real AdSense snippet is routinely pasted with a leading HTML comment
+			// or blank line ("<!-- Google AdSense -->\n<script ...>"), which does
+			// not *start* with <script; a "!== 0" test would then wrap an already
+			// present <script> in a second one, producing a nested and broken
+			// <script><script ...></script></script>.
+			if(stripos($code, '<script') === false)
 			{
 				$code = '<script>' . $code . '</script>';
 			}
 
 			return $code;
+		}
+
+		/**
+		 * Return the AdSense loader snippet for a given output position, or ''
+		 * when it must not be emitted there.
+		 *
+		 * Bundles the three decisions a caller must make before printing the
+		 * loader into one place: the current page must not be on the block list,
+		 * the requested position must match the configured googleads_position
+		 * preference, and the loader must be enabled and non-empty (delegated to
+		 * renderLoaderScript()). Any integration - e_meta.php, e_footer.php or a
+		 * third-party front end - can therefore decide whether to print with a
+		 * single call and without duplicating this logic.
+		 *
+		 * @param string $position 'head' or 'body_end'
+		 * @return string
+		 */
+		public function renderLoaderForPosition($position)
+		{
+			if($this->isPageBlocked())
+			{
+				return '';
+			}
+
+			$configured = e107::getPlugPref('jmgooglead', 'googleads_position', 'head');
+
+			if($configured !== $position)
+			{
+				return '';
+			}
+
+			return $this->renderLoaderScript();
 		}
 
 		/**
@@ -85,19 +124,38 @@ if(!class_exists('jmgooglead'))
 				return '';
 			}
 
+			// Never render a live ad inside the e107 admin area. USER_AREA is
+			// defined (and false) only there; on UnitedNuke pages it is not
+			// defined at all, which must be treated as "not the admin area"
+			// rather than as a block - hence the defined() test.
+			if(defined('USER_AREA') && !USER_AREA)
+			{
+				return '';
+			}
+
 			if($this->isPageBlocked())
 			{
 				return '';
 			}
 
-			// $id is an int, so this WHERE clause cannot be injected. Fetch the
-			// row and evaluate visibility in PHP rather than in SQL.
+			// Fetch the row via a bound/parameterised query and evaluate
+			// visibility in PHP rather than in SQL. The (int) cast above already
+			// makes $id safe, but the bound parameter keeps the query free of
+			// string concatenation as defence in depth.
 			$sql = e107::getDb();
-			$row = $sql->retrieve(
+			$count = $sql->select(
 				'jmgooglead',
 				'googlead_code, googlead_active, googlead_class',
-				'googlead_id=' . $id
+				'googlead_id=:id',
+				array('id' => $id)
 			);
+
+			if(empty($count))
+			{
+				return '';
+			}
+
+			$row = $sql->fetch();
 
 			if(empty($row))
 			{
@@ -148,6 +206,12 @@ if(!class_exists('jmgooglead'))
 				return false;
 			}
 
+			// NOTE: e_REQUEST_URL is the *full* request url string INCLUDING the
+			// domain (e.g. https://example.com/page), per e107 core. The block
+			// list is therefore matched against the domain as well as the path,
+			// so an admin who enters their own domain (or any fragment of it)
+			// will match every page and silently disable ads site-wide. The
+			// admin help string warns about this.
 			$request_url = e_REQUEST_URL;
 			$c_url = str_replace('&amp;', '&', $request_url);
 			$c_url = rtrim(rawurldecode($c_url), '?');
